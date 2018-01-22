@@ -27,7 +27,7 @@ class ChatroomMainVerticle : CoroutineVerticle() {
     }
 
 
-    suspend override fun start() {
+    override suspend fun start() {
         val server = vertx.createHttpServer()
 
         val router = Router.router(vertx)
@@ -38,41 +38,58 @@ class ChatroomMainVerticle : CoroutineVerticle() {
     }
 
     private fun websocketMethod(server: HttpServer) {
-        server.websocketHandler({ webSocket ->final Matcher m = chatUrlPattern.matcher(ws.path());
-            if (!m.matches()) {
-                ws.reject();
-                return;
-            }
 
-            final String chatRoom = m.group(1);
-            final String id = ws.textHandlerID();
-            logger.info("registering new connection with id: " + id + " for chat-room: " + chatRoom);
-            vertx.sharedData().getSet("chat.room." + chatRoom).add(id);
+        server.websocketHandler({ webSocket ->
+
+            if (webSocket.path() != "/chat") {
+//                webSocket.writeTextMessage("非法请求")
+
+                webSocket.reject()
+            }
             // 获取每一个链接的ID
             val id = webSocket.binaryHandlerID()
             // 判断当前连接的ID是否存在于map集合中，如果不存在则添加进map集合中
             if (!checkID(id)) {
-                connectionMap.put(id, webSocket)
+                connectionMap[id] = webSocket
             }
+
+            for (entry in connectionMap) {
+//                    if (currID != entry.key) {
+                /* 发送文本消息
+            文本信息似乎不支持图片等二进制消息
+            若要发送二进制消息，可用writeBinaryMessage方法
+            */
+                entry.value.writeTextMessage("$id 进入聊天室")
+//                    }
+            }
+
 
             //　WebSocket 连接
             webSocket.frameHandler({ handler ->
+
                 val textData = handler.textData()
                 //给非当前连接到服务器的每一个WebSocket连接发送消息
                 for (entry in connectionMap) {
 //                    if (currID != entry.key) {
-                        /* 发送文本消息
-                    文本信息似乎不支持图片等二进制消息
-                    若要发送二进制消息，可用writeBinaryMessage方法
-                    */
-                        entry.value.writeTextMessage(textData)
+                    /* 发送文本消息
+                文本信息似乎不支持图片等二进制消息
+                若要发送二进制消息，可用writeBinaryMessage方法
+                */
+                    entry.value.writeTextMessage(textData)
 //                    }
                 }
 
             })
 
             // 客户端WebSocket 关闭时，将当前ID从map中移除
-            webSocket.closeHandler({ connectionMap.remove(id) })
+            webSocket.closeHandler({
+                connectionMap.remove(id)
+                for (entry in connectionMap) {
+                    entry.value.writeTextMessage("$id 退出聊天室")
+//                    }
+                }
+            })
+
         })
     }
 
@@ -81,6 +98,7 @@ class ChatroomMainVerticle : CoroutineVerticle() {
         return connectionMap.containsKey(id)
     }
 }
+
 fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
     handler { ctx ->
         launch(ctx.vertx().dispatcher()) {
@@ -92,6 +110,7 @@ fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
         }
     }
 }
+
 fun main(args: Array<String>) {
 //    System.setProperty("vertx.logger-delegate-factory-class-name",
 //            "io.vertx.core.logging.Log4j2LogDelegateFactory")
