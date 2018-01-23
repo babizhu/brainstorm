@@ -11,7 +11,6 @@ class QuestionSet(private val questions:List<Question>) {
 
     fun getNextQuestion(): Question {
         return questions[currentQuestionIndex++]
-
     }
 
 }

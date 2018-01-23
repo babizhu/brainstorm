@@ -15,8 +15,7 @@ object QuizCache {
     init {
         historyQuestionsMap = HashMap()
         val historyList = ArrayList<Question>()
-        var question = Question("第一次鸦片战争始于哪一年", 1, listOf("1841", "1941", "1840", "1852", "1842", "1843"), 3)
-        historyList.add(question)
+        historyList.add(Question("第一次鸦片战争始于哪一年", 1, listOf("1841", "1941", "1840", "1852", "1842", "1843"), 2))
         historyQuestionsMap.put(1, historyList)
 
         mathQuestionsMap = HashMap()

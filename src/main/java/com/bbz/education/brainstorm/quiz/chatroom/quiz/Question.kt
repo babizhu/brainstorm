@@ -8,7 +8,7 @@ import java.util.*
 data class Question(val question:String,
                     val level:Int,
                     val option: List<String>,
-                    private val answerIndex:Int ){
+                    val answerIndex:Int ){
 
 
     private fun shuffle(){
