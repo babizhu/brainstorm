@@ -13,4 +13,11 @@ class QuestionSet(private val questions:List<Question>) {
         return questions[currentQuestionIndex++]
     }
 
+    /**
+     * 是否还有下一道题
+     */
+    fun hasNext():Boolean{
+        return currentQuestionIndex < questions.size
+    }
+
 }

@@ -45,8 +45,10 @@
 </script>
 <form onsubmit="return false;">
   <input type="text" name="message">
-  <input type="button" value="提交" onclick="send(this.form.message.value)">
-  <input type="button" value="开始答题" onclick="send(this.form.message.value)">
+  <!--<input type="button" value="提交" onclick="send(this.form.message.value)">-->
+  <input type="button" value="登陆" onclick="send('login|'+this.form.message.value)">
+  <input type="button" value="匹配" onclick="send('joinMatch|')">
+  <input type="button" value="答题" onclick="send('choose|'+this.form.message.value)">
 
   <div id="content"></div>
 </form>

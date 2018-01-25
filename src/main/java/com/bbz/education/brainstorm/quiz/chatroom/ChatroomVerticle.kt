@@ -2,17 +2,14 @@
 
 package com.bbz.education.brainstorm.quiz.chatroom
 
+import com.bbz.education.brainstorm.quiz.chatroom.player.PlayerManager
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.logging.LoggerFactory
-import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
-import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.coroutines.CoroutineVerticle
-import io.vertx.kotlin.coroutines.dispatcher
-import kotlinx.coroutines.experimental.launch
 import java.util.*
 
 /**
@@ -59,34 +56,70 @@ class ChatroomMainVerticle : CoroutineVerticle() {
             文本信息似乎不支持图片等二进制消息
             若要发送二进制消息，可用writeBinaryMessage方法
             */
-                entry.value.writeTextMessage("$id 进入聊天室")
+//                entry.value.writeTextMessage("$id 进入聊天室")
 //                    }
             }
 
 
             //　WebSocket 连接
-            webSocket.frameHandler({ handler ->
+//            webSocket.frameHandler({ handler ->
+//
+//                val textData = handler.textData()
+//                //给非当前连接到服务器的每一个WebSocket连接发送消息
+//                for (entry in connectionMap) {
+////                    if (currID != entry.key) {
+//                    /* 发送文本消息
+//                文本信息似乎不支持图片等二进制消息
+//                若要发送二进制消息，可用writeBinaryMessage方法
+//                */
+//                    entry.value.writeTextMessage(textData)
+////                    }
+//                }
+//
+//            })
 
-                val textData = handler.textData()
-                //给非当前连接到服务器的每一个WebSocket连接发送消息
-                for (entry in connectionMap) {
-//                    if (currID != entry.key) {
-                    /* 发送文本消息
-                文本信息似乎不支持图片等二进制消息
-                若要发送二进制消息，可用writeBinaryMessage方法
-                */
-                    entry.value.writeTextMessage(textData)
-//                    }
+            webSocket.endHandler({it-> println("endhandler $it")})
+            webSocket.textMessageHandler({ msg ->
+                var indexOf = msg.indexOf("|")
+                val cmd = msg.substring(0, indexOf)
+                val content = msg.substring(indexOf + 1, msg.length)
+                val player = PlayerManager.get(webSocket)
+                try {
+
+                when (cmd) {
+                    "login" -> {
+                        PlayerManager.login(webSocket, content, "")
+                    }
+                    "joinMatch" -> {
+                        if (player != null) {
+                            PlayerManager.joinMatch(player)
+                            vertx.setTimer(12000,{
+                                if(player.status == 1){
+                                    player.socket.writeTextMessage("放弃Joinmatch")
+                                    player.status = 0
+                                }
+                            })
+                        }
+                    }
+                    "findQuiz" -> {
+                        player?.sendQuestion()
+                    }
+                    "choose" -> {
+                        player?.choose(Integer.parseInt(content))
+                    }
                 }
-
+                }catch ( exception:Exception){
+                    exception.printStackTrace()
+                }
             })
-
+            webSocket.exceptionHandler { it ->
+                it.printStackTrace()
+            }
             // 客户端WebSocket 关闭时，将当前ID从map中移除
             webSocket.closeHandler({
-                connectionMap.remove(id)
-                for (entry in connectionMap) {
-                    entry.value.writeTextMessage("$id 退出聊天室")
-//                    }
+                val player = PlayerManager.get(webSocket)
+                if(player != null ){
+                    PlayerManager.exit(player)
                 }
             })
 
@@ -98,18 +131,18 @@ class ChatroomMainVerticle : CoroutineVerticle() {
         return connectionMap.containsKey(id)
     }
 }
-
-fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
-    handler { ctx ->
-        launch(ctx.vertx().dispatcher()) {
-            try {
-                fn(ctx)
-            } catch (e: Exception) {
-                ctx.fail(e)
-            }
-        }
-    }
-}
+//
+//fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
+//    handler { ctx ->
+//        launch(ctx.vertx().dispatcher()) {
+//            try {
+//                fn(ctx)
+//            } catch (e: Exception) {
+//                ctx.fail(e)
+//            }
+//        }
+//    }
+//}
 
 fun main(args: Array<String>) {
 //    System.setProperty("vertx.logger-delegate-factory-class-name",

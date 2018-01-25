@@ -3,13 +3,14 @@ package com.bbz.education.brainstorm.quiz.chatroom.quiz
 import java.util.*
 
 /**
- * 负责和数据库获取所有的题目，保存到内存中
+ * 负责从数据库或其他存储设备获取所有的题目，保存到内存中
  *
  */
 object QuizCache {
 
     private val historyQuestionsMap: Map<Int, List<Question>>
     private val mathQuestionsMap: Map<Int, List<Question>>
+    private val chineseQuestionsMap: Map<Int, List<Question>>
     private val random: Random = Random()
 
     init {
@@ -22,14 +23,21 @@ object QuizCache {
         val mathList = ArrayList<Question>()
         mathList.add(Question("三角形的内角只和是多少度", 1, listOf("180", "360", "720", "0"), 0))
         mathQuestionsMap.put(1, mathList)
+
+        chineseQuestionsMap = HashMap()
+        val chineseList = ArrayList<Question>()
+        chineseList.add(Question("《将进酒》的作者是谁", 1, listOf("陶渊明", "杜甫", "白居易", "李白"), 3))
+        chineseQuestionsMap.put(1, chineseList)
     }
 
     fun getQuestionSet(level: Int): QuestionSet {
         val mathQuestion = getRandomQuestion(mathQuestionsMap[level])
         val historyQuestion = getRandomQuestion(historyQuestionsMap[level])
+        val chineseQuestion = getRandomQuestion(chineseQuestionsMap[level])
         val questionList = ArrayList<Question>()
         questionList.add(mathQuestion)
         questionList.add(historyQuestion)
+        questionList.add(chineseQuestion)
         return QuestionSet(questionList)
 
     }
