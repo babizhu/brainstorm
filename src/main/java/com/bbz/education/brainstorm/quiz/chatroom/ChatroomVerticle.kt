@@ -29,6 +29,7 @@ class ChatroomMainVerticle : CoroutineVerticle() {
 
         val router = Router.router(vertx)
 
+        router.route("/math.html").handler({ routingContext -> routingContext.response().sendFile("html/math.html") })
         router.route("/").handler({ routingContext -> routingContext.response().sendFile("html/ws.html") })
         websocketMethod(server)
         server.requestHandler(router::accept).listen(8080)

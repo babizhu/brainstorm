@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>WebSocketTest</title>
-  <script type="text/javascript" src="http://www.w3school.com.cn/jquery/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript"
+          src="http://www.w3school.com.cn/jquery/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript"
+          src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
 </head>
 <body>
 <script>
   var socket;
-  if(window.WebSocket){
-    socket = new WebSocket("ws://localhost:8080/chat");
+  if (window.WebSocket) {
+    socket = new WebSocket("ws://192.168.31.133:8080/chat");
     // websocket收到消息
-    socket.onmessage = function(event){
+    socket.onmessage = function (event) {
       // 如果服务端是写的二进制数据，则此处的blob也是一个二进制对象，提取数据时需要Blob类和FileReader类配合使用
       var blob = event.data;
       var content = $("#content").html();
@@ -28,17 +31,17 @@
     socket.onclose = function (event) {
       console.log("websocket 连接关闭");
     };
-  }else{
+  } else {
     alert("你的浏览器不支持websocket");
   }
 
   function send(message) {
-    if(!window.WebSocket){
+    if (!window.WebSocket) {
       return;
     }
-    if(socket.readyState == WebSocket.OPEN){
+    if (socket.readyState == WebSocket.OPEN) {
       socket.send(message);
-    }else{
+    } else {
       alert("websocket连接未打开，请检查网络设置");
     }
   }
@@ -51,6 +54,7 @@
   <input type="button" value="答题" onclick="send('choose|'+this.form.message.value)">
 
   <div id="content"></div>
+  <div>`x = (-b +- sqrt(b^2-4ac))/(2a) .`</div>
 </form>
 </body>
 </html>

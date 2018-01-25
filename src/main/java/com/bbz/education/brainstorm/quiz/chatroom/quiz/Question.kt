@@ -6,9 +6,10 @@ import java.util.*
  * @param answerIndex    the index of concrrect option in @param option
  */
 data class Question(val question:String,
-                    val level:Int,
                     val option: List<String>,
-                    val answerIndex:Int ){
+                    val answerIndex:Int,
+                    val level:Int
+                    ){
 
 
     private fun shuffle(){
