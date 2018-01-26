@@ -1,6 +1,6 @@
 package com.bbz.education.brainstorm.quiz.chatroom.player
 
-import com.bbz.education.brainstorm.quiz.chatroom.room.Match
+import com.bbz.education.brainstorm.quiz.chatroom.match.Match
 import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.logging.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -38,10 +38,10 @@ object PlayerManager {
             if (player != me && player.status == 1) {
                 player.status = 2
                 me.status = 2
-                val match = Match(1, me, player)
+                val match = Match(1, listOf(player,me))
                 player.match = match
                 me.match = match
-                match.getCurrentQuestion()
+                match.sendCurrentQuestion()
                 return
             }
         }

@@ -23,7 +23,6 @@ class ChatroomMainVerticle : CoroutineVerticle() {
         val logger = LoggerFactory.getLogger(this::class.java)!!
     }
 
-
     override suspend fun start() {
         val server = vertx.createHttpServer()
 
@@ -99,7 +98,10 @@ class ChatroomMainVerticle : CoroutineVerticle() {
                                     player.socket.writeTextMessage("放弃Joinmatch")
                                     player.status = 0
                                 }
+
                             })
+
+
                         }
                     }
                     "findQuiz" -> {
@@ -107,6 +109,8 @@ class ChatroomMainVerticle : CoroutineVerticle() {
                     }
                     "choose" -> {
                         player?.choose(Integer.parseInt(content))
+                        vertx.setTimer(1000,player::setTimeout!!)
+
                     }
                 }
                 }catch ( exception:Exception){

@@ -1,7 +1,6 @@
-package com.bbz.education.brainstorm.quiz.chatroom.room
+package com.bbz.education.brainstorm.quiz.chatroom.match
 
 import com.bbz.education.brainstorm.quiz.chatroom.player.Player
-import com.bbz.education.brainstorm.quiz.chatroom.quiz.Question
 import com.bbz.education.brainstorm.quiz.chatroom.quiz.QuestionSet
 import com.bbz.education.brainstorm.quiz.chatroom.quiz.QuizCache
 import io.vertx.core.json.JsonObject
@@ -9,41 +8,12 @@ import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import org.slf4j.LoggerFactory
 
-class Round(val question: Question) {
-    companion object {
-        val logger = LoggerFactory.getLogger(this::class.java)!!
-        /**
-         * 本房间的挑战人数
-         */
-        const val PLAYER_NUMBER = 2
-    }
-    val choose = HashMap<Player, Int>()
-    /**
-     * 本回合开始的时间（毫秒）
-     */
-    val beginTime = System.currentTimeMillis()
+data class PlayerMatchInfo(var point: Int, var lscs: Int)
 
-    /**
-     * 本回合是否结束
-     */
-    fun isEnd(): Boolean {
-        return choose.size == PLAYER_NUMBER
-    }
 
-    fun choose(answer: Int, player: Player): Boolean {
-        if( choose.containsKey(player)){
-            throw RuntimeException("已经答过题了")
-        }
-        choose[player] = answer
-        return answer == question.answerIndex
-    }
-}
+class Match(level: Int, players: List<Player>) {
 
-data class MatchInfo(var point: Int, var lscs: Int)
-class Match(level: Int, player1: Player,
-            player2: Player) {
-
-    private val matchInfoMap = HashMap<Player, MatchInfo>()
+    private val matchInfo = HashMap<Player, PlayerMatchInfo>()
     //    private val playerList: List<Player>
     private val questionSet: QuestionSet = QuizCache.getQuestionSet(level)
     private val roundList = ArrayList<Round>()
@@ -51,23 +21,29 @@ class Match(level: Int, player1: Player,
 
 
     init {
-        matchInfoMap[player1] = MatchInfo(0, 0)
-        matchInfoMap[player2] = MatchInfo(0, 0)
+        for (player in players) {
+            matchInfo[player] = PlayerMatchInfo(0, 0)
+        }
     }
 
     companion object {
         val logger = LoggerFactory.getLogger(this::class.java)!!
-        /**
-         * 本房间的挑战人数
-         */
-        const val PLAYER_NUMBER = 2
+
     }
 
-    fun getCurrentQuestion() {
+    fun sendCurrentQuestion() {
         val question = questionSet.getNextQuestion()
         currentRound = Round(question)
         roundList.add(currentRound)
-        sendBroadcastMsg(buildQuestionJson())
+        sendBroadcast(buildQuestionJson())
+    }
+
+    fun end(){
+        saveToDB()
+    }
+
+    private fun saveToDB() {
+
     }
 
     private fun buildQuestionJson(): JsonObject {
@@ -82,11 +58,16 @@ class Match(level: Int, player1: Player,
     /**
      * 对房间内的用户广播
      */
-    private fun sendBroadcastMsg(msg: JsonObject) {
+    private fun sendBroadcast(msg: JsonObject) {
 //        logger.debug(msg.encode())
-        println(msg)
-        for (player in matchInfoMap.keys) {
-            player.socket.writeTextMessage(msg.encode())
+
+        for (player in matchInfo.keys) {
+            try {
+                player.socket.writeTextMessage(msg.encode())
+            } catch (exception: Exception) {
+                logger.error("${player.name} 抛出异常：$exception.message")
+
+            }
         }
     }
 
@@ -95,7 +76,7 @@ class Match(level: Int, player1: Player,
      */
     fun choose(player: Player, choose: Int) {
         if (currentRound.choose(choose, player)) {
-            val matchInfo = matchInfoMap[player]
+            val matchInfo = matchInfo[player]
             matchInfo!!.lscs += 1
             matchInfo!!.point += calcPoint(player, true)
         }
@@ -103,25 +84,25 @@ class Match(level: Int, player1: Player,
 
             val result = JsonObject().put("answer", currentRound.question.answerIndex)
 
-            for (entry in matchInfoMap) {
+            for (entry in matchInfo) {
                 result.put(entry.key.name,
                         JsonObject().put("choose", currentRound.choose[entry.key])
                                 .put("point", entry.value.point)
                                 .put("lscs", entry.value.lscs)
                 )
             }
-            sendBroadcastMsg(result)
+            sendBroadcast(result)
             //推送下一道题
             if (questionSet.hasNext()) {
-                getCurrentQuestion()
+                sendCurrentQuestion()
             } else {
 
                 var end = JsonObject()
-                for (entry in matchInfoMap) {
-                    end.put(entry.key.name,entry.value.point)
+                for (entry in matchInfo) {
+                    end.put(entry.key.name, entry.value.point)
                 }
 
-                sendBroadcastMsg(end)
+                sendBroadcast(end)
             }
         }
 
@@ -135,7 +116,7 @@ class Match(level: Int, player1: Player,
         return if (isRight) {
             val beginTime = currentRound.beginTime
 
-            200 - ((System.currentTimeMillis() - beginTime) / 1000).toInt() * 10 + matchInfoMap[player]!!.lscs * 10
+            200 - ((System.currentTimeMillis() - beginTime) / 1000).toInt() * 10 + matchInfo[player]!!.lscs * 10
         } else {
             0
         }
@@ -146,21 +127,21 @@ class Match(level: Int, player1: Player,
 fun main(args: Array<String>) {
 //    val player1 = Player("liulaoye", socket)
 //    val player2 = Player("bbz", socket)
-//    val room = Match(1, player1, player2)
-//    room.getCurrentQuestion()
+//    val match = Match(1, player1, player2)
+//    match.sendCurrentQuestion()
 //    Thread.sleep(2000)
 //    println("等待答题中......")
-//    room.choose(player1, 0)
-//    room.choose(player2, 1)
+//    match.choose(player1, 0)
+//    match.choose(player2, 1)
 //    Thread.sleep(1000)
 //    println("下一题......")
 //
-//    room.getCurrentQuestion()
+//    match.sendCurrentQuestion()
 //    Thread.sleep(3000)
 //    println("等待答题中......")
-//    room.choose(player1, 2)
-//    room.choose(player2, 1)
+//    match.choose(player1, 2)
+//    match.choose(player2, 1)
 //
-//    room.getCurrentQuestion()
+//    match.sendCurrentQuestion()
 
 }
