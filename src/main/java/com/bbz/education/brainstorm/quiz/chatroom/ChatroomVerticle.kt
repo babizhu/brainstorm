@@ -91,25 +91,13 @@ class ChatroomMainVerticle : CoroutineVerticle() {
                         PlayerManager.login(webSocket, content, "")
                     }
                     "joinMatch" -> {
-                        if (player != null) {
-                            PlayerManager.joinMatch(player)
-                            vertx.setTimer(12000,{
-                                if(player.status == 1){
-                                    player.socket.writeTextMessage("放弃Joinmatch")
-                                    player.status = 0
-                                }
-
-                            })
-
-
-                        }
+                        player?.joinMatch(vertx)
                     }
                     "findQuiz" -> {
                         player?.sendQuestion()
                     }
                     "choose" -> {
                         player?.choose(Integer.parseInt(content))
-                        vertx.setTimer(1000,player::setTimeout!!)
 
                     }
                 }

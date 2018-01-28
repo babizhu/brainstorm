@@ -6,7 +6,7 @@ import io.vertx.core.logging.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
 object PlayerManager {
-    private val onlineUserMap = ConcurrentHashMap<ServerWebSocket, Player>()
+    val onlineUserMap = ConcurrentHashMap<ServerWebSocket, Player>()
 
     private val logger = LoggerFactory.getLogger(this::class.java)!!
 
@@ -14,7 +14,7 @@ object PlayerManager {
     fun login(socket: ServerWebSocket, name: String, password: String) {
         val player = onlineUserMap[socket]
         if (player == null) {
-            var player = Player(name, socket)
+            var player = Player(name, socket,this)
             onlineUserMap[socket] = player
         } else {
 
@@ -24,28 +24,6 @@ object PlayerManager {
 
     fun get(webSocket: ServerWebSocket): Player? {
         return onlineUserMap[webSocket]
-    }
-
-    /**
-     * 匹配用户
-     */
-    fun joinMatch(me: Player) {
-        if(me.status != 0 ){
-            logger.error("${me.name}已经在匹配或者已经开始比赛，不能匹配")
-            return
-        }
-        for (player in onlineUserMap.values) {//对手
-            if (player != me && player.status == 1) {
-                player.status = 2
-                me.status = 2
-                val match = Match(1, listOf(player,me))
-                player.match = match
-                me.match = match
-                match.sendCurrentQuestion()
-                return
-            }
-        }
-        me.ready()
     }
 
     /**
