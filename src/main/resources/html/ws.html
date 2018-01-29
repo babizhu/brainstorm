@@ -11,7 +11,8 @@
   var socket;
   if (window.WebSocket) {
     // socket = new WebSocket("ws://192.168.31.133:8080/chat");
-    socket = new WebSocket("ws://localhost:8080/chat");
+    socket = new WebSocket("ws://localhost:8989/chat");
+    console.log("socket="+socket)
     // websocket收到消息
     socket.onmessage = function (event) {
       // 如果服务端是写的二进制数据，则此处的blob也是一个二进制对象，提取数据时需要Blob类和FileReader类配合使用
@@ -41,7 +42,7 @@
     if (socket.readyState == WebSocket.OPEN) {
       socket.send(message);
     } else {
-      alert("websocket连接未打开，请检查网络设置");
+      alert("websocket连接未打开，请检查网络设置，当前状态"+socket.readyState);
     }
   }
 </script>

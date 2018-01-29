@@ -32,7 +32,6 @@ class Player(val name: String, val socket: ServerWebSocket, val playerManager: P
     fun joinMatchPending(vertx: Vertx) {
         status = 1
         setTimeout(vertx,1)
-
     }
 
     private fun setTimeout(vertx: Vertx, eventId: Int) {
@@ -104,5 +103,9 @@ class Player(val name: String, val socket: ServerWebSocket, val playerManager: P
             }
         }
         joinMatchPending(vertx)
+    }
+
+    fun exit() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

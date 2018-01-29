@@ -80,7 +80,7 @@ class ChatroomMainVerticle : CoroutineVerticle() {
 
             webSocket.endHandler({it-> println("endhandler $it")})
             webSocket.textMessageHandler({ msg ->
-                var indexOf = msg.indexOf("|")
+                val indexOf = msg.indexOf("|")
                 val cmd = msg.substring(0, indexOf)
                 val content = msg.substring(indexOf + 1, msg.length)
                 val player = PlayerManager.get(webSocket)
@@ -115,7 +115,6 @@ class ChatroomMainVerticle : CoroutineVerticle() {
                     PlayerManager.exit(player)
                 }
             })
-
         })
     }
 
