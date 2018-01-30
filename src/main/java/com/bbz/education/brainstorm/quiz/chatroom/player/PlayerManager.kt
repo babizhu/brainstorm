@@ -12,17 +12,21 @@ object PlayerManager {
 
     fun login(socket: ServerWebSocket, name: String, password: String) {
 
-        var plus = onlineUserMap.plus(onlineUserMap)
+//        var plus = onlineUserMap + onlineUserMap
+//
+////        onlineUserMap.putIfAbsent(socket,Player(name, socket,this))
+//        val player = onlineUserMap[socket]
+//
+//        if (player == null) {
+//            val player = Player(name, socket, this)
+//            onlineUserMap[socket] = player
+//        } else {
+//            logger.error("用户{${player.name}}不能用名字{$name}反复登陆")
+//        }
 
-//        onlineUserMap.putIfAbsent(socket,Player(name, socket,this))
-        val player = onlineUserMap[socket]
-
-        if (player == null) {
-            val player = Player(name, socket, this)
-            onlineUserMap[socket] = player
-        } else {
-            logger.error("用户{${player.name}}不能用名字{$name}反复登陆")
-        }
+        onlineUserMap.computeIfAbsent(socket, {
+            Player(name, socket, this)
+        })
     }
 
     fun get(webSocket: ServerWebSocket): Player? {
@@ -74,7 +78,8 @@ fun main(args: Array<String>) {
     }
 
     println(result1)
-    with(ArrayList<String>()) {
+    var arrayList = ArrayList<String>()
+    with(arrayList) {
         add("testWith")
         add("testWith")
         add("testWith")
