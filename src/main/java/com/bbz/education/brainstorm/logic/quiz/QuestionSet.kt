@@ -1,4 +1,4 @@
-package com.bbz.education.brainstorm.quiz.chatroom.quiz
+package com.bbz.education.brainstorm.logic.quiz
 
 class QuestionSet(private val questions:List<Question>) {
 

@@ -1,4 +1,4 @@
-package com.bbz.education.brainstorm.netty
+package com.bbz.education.brainstorm.network.netty
 
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler

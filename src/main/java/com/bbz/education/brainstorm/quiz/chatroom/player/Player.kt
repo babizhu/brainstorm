@@ -1,6 +1,6 @@
 package com.bbz.education.brainstorm.quiz.chatroom.player
 
-import com.bbz.education.brainstorm.quiz.chatroom.match.Match
+import com.bbz.education.brainstorm.logic.match.Match
 import io.vertx.core.Vertx
 import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.logging.LoggerFactory

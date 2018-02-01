@@ -1,17 +1,17 @@
-package com.bbz.education.brainstorm.netty.logic
+package com.bbz.education.brainstorm.logic.player
 
+import io.netty.channel.Channel
 import io.netty.channel.ChannelFutureListener
-import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
 
-class Player(val name: String, var ctx: ChannelHandlerContext) {
+class Player(val name: String, var channel: Channel,status:Int=0, val level: Int=1) {
     var point: Int = 0
     fun sendMsg(msg: String) {
-        ctx.writeAndFlush(TextWebSocketFrame(msg))
+        channel.writeAndFlush(TextWebSocketFrame(msg))
     }
 
     fun sendMsgAndClose(msg: String) {
-        ctx.writeAndFlush(TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE)
+        channel.writeAndFlush(TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE)
     }
 
     private fun changePoint(change: Int) {
@@ -26,7 +26,7 @@ class Player(val name: String, var ctx: ChannelHandlerContext) {
      * 退出
      */
     fun exit() {
-        ctx.close()
+        channel.close()
         save()
     }
 
@@ -36,4 +36,14 @@ class Player(val name: String, var ctx: ChannelHandlerContext) {
     private fun save() {
 
     }
+
+    fun joinMatch(channel: Channel) {
+        
+    }
+
+    @Synchronized
+    fun makePairSuccess() {
+        point -=100
+    }
+
 }

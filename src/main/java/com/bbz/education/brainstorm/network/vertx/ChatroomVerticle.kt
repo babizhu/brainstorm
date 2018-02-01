@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.bbz.education.brainstorm.quiz.chatroom
+package com.bbz.education.brainstorm.network.vertx
 
 import com.bbz.education.brainstorm.quiz.chatroom.player.PlayerManager
 import io.vertx.core.Vertx
@@ -125,12 +125,12 @@ class ChatroomMainVerticle : CoroutineVerticle() {
 }
 //
 //fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
-//    handler { ctx ->
-//        launch(ctx.vertx().dispatcher()) {
+//    handler { channel ->
+//        launch(channel.vertx().dispatcher()) {
 //            try {
-//                fn(ctx)
+//                fn(channel)
 //            } catch (e: Exception) {
-//                ctx.fail(e)
+//                channel.fail(e)
 //            }
 //        }
 //    }

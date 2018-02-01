@@ -1,5 +1,6 @@
-package com.bbz.education.brainstorm.netty
+package com.bbz.education.brainstorm.network.netty
 
+import com.bbz.education.brainstorm.network.netty.logic.handler.LoginHandler
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.codec.http.HttpObjectAggregator
@@ -23,6 +24,7 @@ class BrainStormChannelInitializer : ChannelInitializer<SocketChannel>() {
         pipeline.addLast("httpObjectAggregator", HttpObjectAggregator(8192));
         pipeline.addLast("webSocketServerProtocolHandler", WebSocketServerProtocolHandler("/chat"))
 //        pipeline.addLast("test", TestHandler())
-        pipeline.addLast("logicHandler", LogicHandler())
+//        pipeline.addLast("logicHandler", BrainStormHandler())
+        pipeline.addLast("loginHandler", LoginHandler())
     }
 }

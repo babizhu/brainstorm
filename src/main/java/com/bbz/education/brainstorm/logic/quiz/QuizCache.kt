@@ -1,4 +1,4 @@
-package com.bbz.education.brainstorm.quiz.chatroom.quiz
+package com.bbz.education.brainstorm.logic.quiz
 
 import java.io.File
 import java.nio.charset.Charset

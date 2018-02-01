@@ -1,7 +1,7 @@
-package com.bbz.education.brainstorm.quiz.chatroom.match
+package com.bbz.education.brainstorm.logic.match
 
+import com.bbz.education.brainstorm.logic.quiz.Question
 import com.bbz.education.brainstorm.quiz.chatroom.player.Player
-import com.bbz.education.brainstorm.quiz.chatroom.quiz.Question
 import org.slf4j.LoggerFactory
 
 class Round(val question: Question) {
